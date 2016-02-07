@@ -1,0 +1,31 @@
+# Kill active server, but save stored keys first!
+$(tmux has-session -t scpool)
+if [ $? -eq 0 ]; then
+	echo 'Saving keys...'
+	curl localhost:9999 | jq > .
+	echo 'Killing active tmux...'
+	tmux kill-session -t scpool
+fi
+
+# Update or install
+if [ ! -D scpool ]; then
+	echo "Installing from github..."
+	git clone https://github.com/murlocbrand/scpool
+	cd scpool
+else
+	cd scpool
+	git pull
+fi
+REV=$(git rev-parse --short HEAD)
+echo "Using commit: ${REV}"
+
+# Start a new (detached) session, because we can't control tmux...
+echo "Starting new tmux session..."
+tmux new-session -ds scpool
+
+# Send command over and press ENTER to execute the command
+tmux send -t scpool 'cd ~/scpool' ENTER
+# Could've used make for more pro skillz
+tmux send -t scpool 'go build scpool.go' ENTER
+# tmux send -t scpool 'make release' ENTER
+tmux send -t scpool './scpool --addr ":9999"' ENTER
