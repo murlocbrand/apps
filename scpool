@@ -8,7 +8,7 @@ if [ $? -eq 0 ]; then
 fi
 
 # Update or install
-if [ ! -D scpool ]; then
+if [ ! -d scpool ]; then
 	echo "Installing from github..."
 	git clone https://github.com/murlocbrand/scpool
 	cd scpool
