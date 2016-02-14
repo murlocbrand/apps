@@ -1,0 +1,27 @@
+# Kill active server
+$(tmux has-session -t hawk)
+if [ $? -eq 0 ]; then
+	tmux kill-session -t hawk
+fi
+
+# Update or install
+if [ ! -d "hawk" ]; then
+	echo "Installing..."
+	git clone git@localhost:~/hawk.git
+	cd hawk
+else
+	cd hawk
+	git pull
+fi
+
+# Setup some required env vars
+source ~/hawk_cred
+source ~/.bash_rc
+
+# Start a new (detached) session, because we can't control tmux...
+tmux new-session -ds hawk
+
+# Send command over and press ENTER to execute the command
+tmux send -t hawk 'cd ~/hawk' ENTER
+tmux send -t hawk 'make' ENTER
+tmux send -t hawk "./hawk $HAWK_USER $HAWK_PASS" ENTER
