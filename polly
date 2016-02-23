@@ -1,0 +1,23 @@
+# Kill active server
+$(tmux has-session -t polly)
+if [ $? -eq 0 ]; then
+	tmux kill-session -t polly
+fi
+
+# Update or install
+if [ ! -d "polly" ]; then
+	echo "Installing..."
+	git clone git@localhost:~/polly.git
+	cd polly
+else
+	cd polly
+	git pull
+fi
+
+# Start a new (detached) session, because we can't control tmux...
+tmux new-session -ds polly
+
+# Send command over and press ENTER to execute the command
+tmux send -t polly 'cd ~/polly' ENTER
+tmux send -t polly 'make' ENTER
+tmux send -t polly "./polly" ENTER
